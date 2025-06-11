@@ -13,6 +13,8 @@ export const loginUser = async (email, password) => {
   }
 };
 
+
+// Register API calls
 export const registerUser = async (userData) => {
   try {
     const response = await apiClient.post('/auth/register', userData);
@@ -22,6 +24,7 @@ export const registerUser = async (userData) => {
   }
 };
 
+// Forgot Password API calls
 export const forgotPassword = async (email) => {
   try {
     const response = await apiClient.post('/auth/forgotpassword', { email });
@@ -31,6 +34,7 @@ export const forgotPassword = async (email) => {
   }
 };
 
+// Reset Password API calls
 export const logout = async () => {
   try {
     const response = await apiClient.get('/auth/logout');
@@ -50,6 +54,7 @@ export const getFacilities = async () => {
   }
 };
 
+// Get a specific facility by ID
 export const getFacility = async (id) => {
   try {
     const response = await apiClient.get(`/booking/facilities/${id}`);
@@ -59,6 +64,7 @@ export const getFacility = async (id) => {
   }
 };
 
+// Create a new booking
 export const createBooking = async (bookingData) => {
   try {
     const response = await apiClient.post('/booking/create', bookingData);
@@ -68,6 +74,8 @@ export const createBooking = async (bookingData) => {
   }
 };
 
+
+// Get all bookings for the user
 export const getUserBookings = async () => {
   try {
     const response = await apiClient.get('/booking/user');
@@ -77,6 +85,7 @@ export const getUserBookings = async () => {
   }
 };
 
+// Get a specific booking by ID
 export const cancelBooking = async (id) => {
   try {
     const response = await apiClient.put(`/booking/cancel/${id}`);
@@ -96,6 +105,7 @@ export const getClassrooms = async () => {
   }
 };
 
+// Get a specific classroom by ID
 export const getClassroom = async (id) => {
   try {
     const response = await apiClient.get(`/classroom/${id}`);
@@ -105,6 +115,7 @@ export const getClassroom = async (id) => {
   }
 };
 
+// Create a new classroom booking
 export const getAvailableClassrooms = async () => {
   try {
     const response = await apiClient.get('/classroom/available');
@@ -124,6 +135,7 @@ export const getEvents = async () => {
   }
 };
 
+// Get a specific event by ID
 export const getEvent = async (id) => {
   try {
     const response = await apiClient.get(`/event/${id}`);
@@ -133,6 +145,7 @@ export const getEvent = async (id) => {
   }
 };
 
+// Create a new event
 export const registerForEvent = async (id) => {
   try {
     const response = await apiClient.post(`/event/register/${id}`);
@@ -142,6 +155,7 @@ export const registerForEvent = async (id) => {
   }
 };
 
+// Get registered events for the user
 export const unregisterFromEvent = async (id) => {
   try {
     const response = await apiClient.delete(`/event/unregister/${id}`);
@@ -161,6 +175,7 @@ export const getRestaurants = async () => {
   }
 };
 
+// Get restaurant details
 export const getRestaurant = async (id) => {
   try {
     const response = await apiClient.get(`/food/${id}`);
@@ -170,6 +185,7 @@ export const getRestaurant = async (id) => {
   }
 };
 
+// Get menu items for a specific restaurant
 export const getMenuItems = async (id) => {
   try {
     const response = await apiClient.get(`/food/${id}/menu`);
@@ -189,6 +205,7 @@ export const getComplaints = async () => {
   }
 };
 
+// Get a specific complaint by ID
 export const getComplaint = async (id) => {
   try {
     const response = await apiClient.get(`/complaint/${id}`);
@@ -198,6 +215,7 @@ export const getComplaint = async (id) => {
   }
 };
 
+// Create a new complaint
 export const createComplaint = async (complaintData) => {
   try {
     const response = await apiClient.post('/complaint', complaintData);
@@ -207,6 +225,7 @@ export const createComplaint = async (complaintData) => {
   }
 };
 
+// Update complaint status
 export const updateComplaintStatus = async (id, statusData) => {
   try {
     const response = await apiClient.put(`/complaint/${id}/status`, statusData);
@@ -226,6 +245,7 @@ export const getChatHistory = async () => {
   }
 };
 
+// Send a chat message to the chatbot
 export const sendChatMessage = async (message) => {
   try {
     const response = await apiClient.post('/chatbot/message', { message });

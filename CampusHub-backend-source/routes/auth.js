@@ -60,7 +60,7 @@ router.post('/register', [
   
   try {
     // Check if user already exists
-    let user = await User.findOne({ email });
+let user = await User.findOne({ email }).select('+password');
     if (user) {
       return res.status(400).json({ errors: [{ msg: 'User already exists' }] });
     }
@@ -106,59 +106,78 @@ router.post('/register', [
     res.status(500).send('Server error');
   }
 });
-
 // @route   POST api/auth/login
 // @desc    Authenticate user & get token
 // @access  Public
-router.post('/login', [
-  check('email', 'Please include a valid email').isEmail(),
-  check('password', 'Password is required').exists()
-], async (req, res) => {
-  // Check for validation errors
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  
-  const { email, password } = req.body;
-  
-  try {
-    // Check if user exists
-    let user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
+router.post(
+  '/login',
+  [
+    check('email', 'Please include a valid email').isEmail(),
+    check('password', 'Password is required').exists(),
+  ],
+  async (req, res) => {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log('Login validation errors:', errors.array());
+      return res.status(400).json({ errors: errors.array() });
     }
-    
-    // Verify password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
-    }
-    
-    // Create JWT payload
-    const payload = {
-      user: {
-        id: user.id,
-        role: user.role
-      }
-    };
-    
-    // Sign and return JWT
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' },
-      (err, token) => {
-        if (err) throw err;
-        res.json({ token });
-      }
-    );
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-});
 
+    const { email, password } = req.body;
+
+    try {
+      console.log(`[Backend Log] Attempting login for email: ${email}`);
+
+      let user = await User.findOne({ email }).select('+password');
+      console.log(`[Backend Log] User found: ${user ? 'Yes' : 'No'}`);
+
+      if (!user) {
+        console.log('[Backend Log] User not found, sending 400.');
+        return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
+      }
+
+      console.log('[Backend Log] Comparing password...');
+      const isMatch = await bcrypt.compare(password, user.password);
+      console.log(`[Backend Log] Password match result: ${isMatch}`);
+
+      if (!isMatch) {
+        console.log('[Backend Log] Password mismatch, sending 400.');
+        return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
+      }
+
+      // --- If we reach here, password matched! ---
+      console.log('[Backend Log] Password matched. Proceeding to JWT creation.');
+
+      const payload = {
+        user: {
+          id: user.id,
+          role: user.role,
+        },
+      };
+
+      jwt.sign(
+        payload,
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' },
+        (err, token) => {
+          if (err) {
+            console.error('[Backend Log] JWT signing error:', err.message);
+            // If JWT signing fails, send a 500 error explicitly
+            return res.status(500).json({ msg: 'Token generation failed' });
+          }
+          console.log('[Backend Log] JWT signed successfully. Sending token to frontend.');
+          res.json({ token });
+          console.log('[Backend Log] Response sent via res.json().'); // Confirm this line is reached
+        }
+      );
+    } catch (err) {
+      console.error('[Backend Log] Login server error - Type:', err.name);
+      console.error('[Backend Log] Login server error - Message:', err.message);
+      console.error('[Backend Log] Login server error - Stack:', err.stack);
+      res.status(500).send('Server error');
+    }
+  }
+);
 // @route   GET api/auth/profile
 // @desc    Get user profile
 // @access  Private

@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Button, Text, Avatar, Card, Title, Paragraph } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 
+
 const ChatInterface = () => {
   const [message, setMessage] = React.useState('');
   const [chatHistory, setChatHistory] = React.useState([
@@ -33,7 +34,8 @@ const ChatInterface = () => {
       isUserMessage: true,
       createdAt: new Date()
     };
-    
+
+    // Update chat history with user message
     setChatHistory(prev => [...prev, userMessage]);
     setMessage('');
     setLoading(true);
@@ -63,6 +65,7 @@ const ChatInterface = () => {
         botResponse = "Hello! How can I help you with CampusHub today?";
       }
       
+      // Simulate bot response
       const botMessageObj = {
         id: (Date.now() + 1).toString(),
         message: botResponse,
@@ -80,6 +83,7 @@ const ChatInterface = () => {
     }, 1000);
   };
   
+  // Scroll to bottom on initial render
   return (
     <View style={styles.container}>
       <ScrollView 
@@ -190,6 +194,7 @@ const ChatInterface = () => {
   );
 };
 
+// Styles for the chat interface
 const styles = StyleSheet.create({
   container: {
     flex: 1,

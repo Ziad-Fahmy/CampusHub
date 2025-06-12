@@ -106,48 +106,87 @@ let user = await User.findOne({ email }).select('+password');
     res.status(500).send('Server error');
   }
 });
-// @route   POST api/auth/login
-// @desc    Authenticate user & get token
+// @route   POST api/auth/register
+// @desc    Register a user with role-based fields
 // @access  Public
 router.post(
-  '/login',
+  '/register',
   [
+    // Common validation for all users
+    check('name', 'Name is required').not().isEmpty(),
     check('email', 'Please include a valid email').isEmail(),
-    check('password', 'Password is required').exists(),
+    check('password', 'Password must be at least 6 characters').isLength({ min: 6 }),
+    check('role', 'Role is required').isIn(['student', 'admin']),
+
+    // Custom validation based on role (ensure this part is correct and not causing issues)
+    (req, res, next) => {
+      const { role } = req.body;
+
+      if (role === 'student') {
+        check('studentId', 'Student ID is required').not().isEmpty()(req, res, () => {});
+        check('major', 'Major is required').not().isEmpty()(req, res, () => {});
+        check('year', 'Year is required').not().isEmpty()(req, res, () => {});
+      } else if (role === 'admin') {
+        check('department', 'Department is required').not().isEmpty()(req, res, () => {});
+        check('position', 'Position is required').not().isEmpty()(req, res, () => {});
+        check('employeeId', 'Employee ID is required').not().isEmpty()(req, res, () => {});
+      }
+
+      next();
+    },
   ],
   async (req, res) => {
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log('Login validation errors:', errors.array());
+      console.log('[Backend Register Log] Validation errors:', errors.array()); // ADD THIS LOG
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { email, password } = req.body;
+    const {
+      name,
+      email,
+      password,
+      role,
+      studentId,
+      major,
+      year,
+      department,
+      position,
+      employeeId,
+    } = req.body;
 
     try {
-      console.log(`[Backend Log] Attempting login for email: ${email}`);
+      console.log(`[Backend Register Log] Attempting to register user with email: ${email}`); // ADD THIS LOG
 
-      let user = await User.findOne({ email }).select('+password');
-      console.log(`[Backend Log] User found: ${user ? 'Yes' : 'No'}`);
-
-      if (!user) {
-        console.log('[Backend Log] User not found, sending 400.');
-        return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
+      // Check if user already exists
+      let user = await User.findOne({ email });
+      if (user) {
+        console.log('[Backend Register Log] User already exists.'); // ADD THIS LOG
+        return res.status(400).json({ errors: [{ msg: 'User already exists' }] });
       }
 
-      console.log('[Backend Log] Comparing password...');
-      const isMatch = await bcrypt.compare(password, user.password);
-      console.log(`[Backend Log] Password match result: ${isMatch}`);
+      // Create user object based on role
+      user = new User({
+        name,
+        email,
+        password,
+        role,
+        ...(role === 'student'
+          ? { studentId, major, year }
+          : { department, position, employeeId }),
+      });
 
-      if (!isMatch) {
-        console.log('[Backend Log] Password mismatch, sending 400.');
-        return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] });
-      }
+      // Hash password (this is also handled by pre-save hook in User model, but keeping for now)
+      // const salt = await bcrypt.genSalt(10);
+      // user.password = await bcrypt.hash(password, salt);
+      console.log('[Backend Register Log] User object created, attempting to save...'); // ADD THIS LOG
 
-      // --- If we reach here, password matched! ---
-      console.log('[Backend Log] Password matched. Proceeding to JWT creation.');
+      // Save user to database
+      await user.save();
+      console.log('[Backend Register Log] User saved to database successfully!'); // ADD THIS LOG
 
+      // Create JWT payload
       const payload = {
         user: {
           id: user.id,
@@ -155,25 +194,24 @@ router.post(
         },
       };
 
+      // Sign and return JWT
       jwt.sign(
         payload,
         process.env.JWT_SECRET,
         { expiresIn: '24h' },
         (err, token) => {
           if (err) {
-            console.error('[Backend Log] JWT signing error:', err.message);
-            // If JWT signing fails, send a 500 error explicitly
-            return res.status(500).json({ msg: 'Token generation failed' });
+            console.error('[Backend Register Log] JWT signing error:', err.message); // ADD THIS LOG
+            throw err;
           }
-          console.log('[Backend Log] JWT signed successfully. Sending token to frontend.');
+          console.log('[Backend Register Log] JWT signed, sending response.'); // ADD THIS LOG
           res.json({ token });
-          console.log('[Backend Log] Response sent via res.json().'); // Confirm this line is reached
         }
       );
     } catch (err) {
-      console.error('[Backend Log] Login server error - Type:', err.name);
-      console.error('[Backend Log] Login server error - Message:', err.message);
-      console.error('[Backend Log] Login server error - Stack:', err.stack);
+      console.error('[Backend Register Log] Server error during registration - Type:', err.name); // MODIFY THIS LOG
+      console.error('[Backend Register Log] Server error during registration - Message:', err.message); // MODIFY THIS LOG
+      console.error('[Backend Register Log] Server error during registration - Stack:', err.stack); // MODIFY THIS LOG
       res.status(500).send('Server error');
     }
   }

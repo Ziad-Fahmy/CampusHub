@@ -1,7 +1,7 @@
 // Main server file for CampusHub backend
 const express = require('express');
 const connectDB = require('./config/db');
-const cors = require('cors');
+const cors = require('cors'); // ADDED THIS LINE
 const path = require('path');
 require('dotenv').config();
 
@@ -13,7 +13,7 @@ connectDB();
 
 // Initialize Middleware
 app.use(express.json({ extended: false }));
-app.use(cors());
+app.use(cors()); // ADDED THIS LINE - Ensure this is before your routes
 
 // Define Routes
 app.use('/api/auth', require('./routes/auth'));

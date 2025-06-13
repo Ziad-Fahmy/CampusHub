@@ -6,9 +6,14 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 // Import the actual screen components
 import Dashboard from '../screens/Dashboard';
 import FacilitiesList from '../screens/booking/FacilitiesList';
+import FacilityDetails from '../screens/booking/FacilityDetails'; // Import FacilityDetails
 import ClassroomMap from '../screens/classrooms/ClassroomMap';
 import EventsList from '../screens/events/EventsList';
+import EventDetails from '../screens/events/EventDetails'; // Import EventDetails
+import AddEventScreen from '../screens/events/AddEventScreen'; // Import AddEventScreen
+import EventRegistrationScreen from '../screens/events/EventRegistrationScreen'; // Import EventRegistrationScreen
 import RestaurantsList from '../screens/food/RestaurantsList';
+import RestaurantDetails from '../screens/food/RestaurantDetails'; // Import RestaurantDetails
 import NewComplaint from '../screens/complaints/NewComplaint';
 import ChatInterface from '../screens/chatbot/ChatInterface';
 
@@ -19,6 +24,9 @@ import SettingsScreen from '../screens/profile/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
+const FacilitiesStack = createStackNavigator(); // Create a stack navigator for Facilities
+const EventsStack = createStackNavigator(); // Create a stack navigator for Events
+const FoodStack = createStackNavigator(); // Create a stack navigator for Food
 
 // Create a stack navigator for profile-related screens
 const ProfileStackNavigator = () => {
@@ -35,6 +43,59 @@ const ProfileStackNavigator = () => {
       <ProfileStack.Screen name="Profile" component={ProfileScreen} />
       <ProfileStack.Screen name="EditProfile" component={EditProfileScreen} />
     </ProfileStack.Navigator>
+  );
+};
+
+// Create a stack navigator for Facilities and FacilityDetails
+const FacilitiesStackNavigator = () => {
+  return (
+    <FacilitiesStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#003366',
+        },
+        headerTintColor: '#fff',
+      }}
+    >
+      <FacilitiesStack.Screen name="FacilitiesList" component={FacilitiesList} options={{ headerShown: false }} />
+      <FacilitiesStack.Screen name="FacilityDetails" component={FacilityDetails} options={{ title: 'Facility Details' }} />
+    </FacilitiesStack.Navigator>
+  );
+};
+
+// Create a stack navigator for Events, EventDetails, AddEventScreen, and EventRegistrationScreen
+const EventsStackNavigator = () => {
+  return (
+    <EventsStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#003366',
+        },
+        headerTintColor: '#fff',
+      }}
+    >
+      <EventsStack.Screen name="EventsList" component={EventsList} options={{ headerShown: false }} />
+      <EventsStack.Screen name="EventDetails" component={EventDetails} options={{ title: 'Event Details' }} />
+      <EventsStack.Screen name="AddEvent" component={AddEventScreen} options={{ title: 'Add New Event' }} />
+      <EventsStack.Screen name="EventRegistration" component={EventRegistrationScreen} options={{ title: 'Event Registration' }} />
+    </EventsStack.Navigator>
+  );
+};
+
+// Create a stack navigator for Food and RestaurantDetails
+const FoodStackNavigator = () => {
+  return (
+    <FoodStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#003366',
+        },
+        headerTintColor: '#fff',
+      }}
+    >
+      <FoodStack.Screen name="RestaurantsList" component={RestaurantsList} options={{ headerShown: false }} />
+      <FoodStack.Screen name="RestaurantDetails" component={RestaurantDetails} options={{ title: 'Restaurant Details' }} />
+    </FoodStack.Navigator>
   );
 };
 
@@ -57,8 +118,9 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="Facilities"
-        component={FacilitiesList}
+        component={FacilitiesStackNavigator} // Use the new stack navigator here
         options={{
+          headerShown: false, // Hide header for the tab screen itself
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="basketball" color={color} size={size} />
           ),
@@ -75,8 +137,9 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="Events"
-        component={EventsList}
+        component={EventsStackNavigator} // Use the new stack navigator here
         options={{
+          headerShown: false, // Hide header for the tab screen itself
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="calendar" color={color} size={size} />
           ),
@@ -84,8 +147,9 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="Food"
-        component={RestaurantsList}
+        component={FoodStackNavigator} // Use the new stack navigator here
         options={{
+          headerShown: false, // Hide header for the tab screen itself
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="food-fork-drink" color={color} size={size} />
           ),
@@ -124,3 +188,5 @@ const TabNavigator = () => {
 };
 
 export default TabNavigator;
+
+

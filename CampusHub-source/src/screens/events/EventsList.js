@@ -1,10 +1,12 @@
 import React from 'react';
-// At the top of your EventsList.js file, add or update the import statement:
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import { Card, Title, Paragraph, Button, ActivityIndicator, Chip } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 
 const EventsList = ({ navigation }) => {
+  const { user } = useSelector((state) => state.auth); // Get user from Redux store
+  const isAdmin = user && user.role === 'admin'; // Check if user is admin
+
   // In a real app, this would fetch from the API
   const [events, setEvents] = React.useState([
     {
@@ -164,10 +166,7 @@ const EventsList = ({ navigation }) => {
         {item.registrationRequired && (
           <Button 
             mode="outlined" 
-            onPress={() => {
-              // In a real app, this would handle registration
-              alert('Registration would be implemented here');
-            }}
+            onPress={() => navigation.navigate('EventRegistration', { event: item })}
           >
             Register
           </Button>
@@ -242,6 +241,16 @@ const EventsList = ({ navigation }) => {
           keyExtractor={item => item.id}
           contentContainerStyle={styles.listContainer}
         />
+      )}
+      {isAdmin && (
+        <Button
+          mode="contained"
+          onPress={() => navigation.navigate('AddEvent')}
+          style={styles.addEventButton}
+          icon="plus"
+        >
+          Add New Event
+        </Button>
       )}
     </View>
   );
@@ -319,6 +328,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  addEventButton: {
+    margin: 16,
+    backgroundColor: '#003366',
+  },
 });
 
 export default EventsList;
+
+

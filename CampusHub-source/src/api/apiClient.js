@@ -12,7 +12,9 @@ let API_URL;
 if (__DEV__) { // __DEV__ is a global variable in React Native, true in development
   // You might want to use an environment variable here, or a more sophisticated check
   // For now, let's use your current IP for physical device testing
-  API_URL = 'http://192.168.1.138:5000/api'; 
+  // API_URL = 'http://192.168.1.138:5000/api'; 
+  API_URL = 'http://10.0.2.2:5000/api'; // This is the correct alias for your host machine from an Android emulator
+
   // If you were testing on an Android emulator, you might use:
   // API_URL = 'http://10.0.2.2:5000/api';
   // If you were testing on an iOS simulator, you might use:

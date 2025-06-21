@@ -2,18 +2,40 @@ import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Button, Text, Avatar, Card, Title } from 'react-native-paper';
 
+const API_BASE_URL = 'http://192.168.1.50:5000/api'; // Your server IP address
+
+const sendMessageToChatbot = async (message) => {
+  try {
+const response = await fetch('http://192.168.1.50:5000/api/chatbot/chat', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+},
+body: JSON.stringify({ message: message }),    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.response;
+  } catch (error) {
+    console.error('Chatbot API Error:', error);
+    return 'Sorry, I am having trouble connecting to the chatbot service. Please try again later.';
+  }
+};
+
 const ChatInterface = () => {
   const [message, setMessage] = React.useState('');
   const [chatHistory, setChatHistory] = React.useState([
     {
       id: '1',
-      message: 'Hello! How can I help you with CampusHub today?',
+      message: 'Hello! I\'m your CampusHub assistant. How can I help you today? You can ask me about admissions, courses, facilities, events, or anything about King Salman International University!',
       isUserMessage: false,
       createdAt: new Date(Date.now() - 1000 * 60 * 5)
     }
   ]);
   const [loading, setLoading] = React.useState(false);
-
   const scrollViewRef = React.useRef();
 
   const formatTime = (date) => {
@@ -24,7 +46,7 @@ const ChatInterface = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || loading) return;
 
     const userMessage = {
       id: Date.now().toString(),
@@ -34,6 +56,7 @@ const ChatInterface = () => {
     };
 
     setChatHistory(prev => [...prev, userMessage]);
+    const currentMessage = message.trim();
     setMessage('');
     setLoading(true);
 
@@ -41,22 +64,8 @@ const ChatInterface = () => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
     }, 100);
 
-    setTimeout(() => {
-      let botResponse = "I'm sorry, I don't understand that question.";
-
-      if (message.toLowerCase().includes('class') || message.toLowerCase().includes('room')) {
-        botResponse = "You can find classroom information in the Classrooms tab. You can view available classrooms and their locations on the map.";
-      } else if (message.toLowerCase().includes('book') || message.toLowerCase().includes('facility')) {
-        botResponse = "To book a facility, go to the Facilities tab, select a facility, and choose an available time slot.";
-      } else if (message.toLowerCase().includes('event')) {
-        botResponse = "Check out the Events tab to see upcoming university events. You can register for events that interest you.";
-      } else if (message.toLowerCase().includes('food') || message.toLowerCase().includes('restaurant')) {
-        botResponse = "The Food tab shows all campus restaurants and their menus. You can browse by cuisine type.";
-      } else if (message.toLowerCase().includes('complaint')) {
-        botResponse = "To submit a complaint, go to the Complaints tab and fill out the form with details about your issue.";
-      } else if (message.toLowerCase().includes('hello') || message.toLowerCase().includes('hi')) {
-        botResponse = "Hello! How can I help you with CampusHub today?";
-      }
+    try {
+      const botResponse = await sendMessageToChatbot(currentMessage);
 
       const botMessageObj = {
         id: (Date.now() + 1).toString(),
@@ -66,12 +75,24 @@ const ChatInterface = () => {
       };
 
       setChatHistory(prev => [...prev, botMessageObj]);
+    } catch (error) {
+      const errorMessage = {
+        id: (Date.now() + 1).toString(),
+        message: 'Sorry, I encountered an error. Please make sure your backend server is running and try again.',
+        isUserMessage: false,
+        createdAt: new Date()
+      };
+      setChatHistory(prev => [...prev, errorMessage]);
+    } finally {
       setLoading(false);
-
       setTimeout(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
       }, 100);
-    }, 1000);
+    }
+  };
+
+  const handleSuggestionPress = (suggestionText) => {
+    setMessage(suggestionText);
   };
 
   return (
@@ -121,7 +142,7 @@ const ChatInterface = () => {
               backgroundColor="#003366"
             />
             <View style={[styles.messageBubble, styles.botMessageBubble, styles.typingBubble]}>
-              <Text style={styles.typingText}>Typing...</Text>
+              <Text style={styles.typingText}>Thinking...</Text>
             </View>
           </View>
         )}
@@ -132,14 +153,15 @@ const ChatInterface = () => {
           <TextInput
             value={message}
             onChangeText={setMessage}
-            placeholder="Type your message..."
+            placeholder="Ask me about admissions, courses, facilities..."
             style={styles.input}
+            multiline
             right={
               <TextInput.Icon
                 icon="send"
                 onPress={handleSendMessage}
                 disabled={!message.trim() || loading}
-                color="#003366"
+                color={!message.trim() || loading ? "#ccc" : "#003366"}
               />
             }
             onSubmitEditing={handleSendMessage}
@@ -153,31 +175,38 @@ const ChatInterface = () => {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <Button
               mode="outlined"
-              onPress={() => setMessage("How do I book a facility?")}
+              onPress={() => handleSuggestionPress("What are the admission requirements for Computer Science?")}
               style={styles.suggestionButton}
             >
-              How do I book a facility?
+              Admission Requirements
             </Button>
             <Button
               mode="outlined"
-              onPress={() => setMessage("Where can I find available classrooms?")}
+              onPress={() => handleSuggestionPress("What facilities are available on campus?")}
               style={styles.suggestionButton}
             >
-              Find classrooms
+              Campus Facilities
             </Button>
             <Button
               mode="outlined"
-              onPress={() => setMessage("What events are happening this week?")}
+              onPress={() => handleSuggestionPress("What courses are offered in Engineering?")}
               style={styles.suggestionButton}
             >
-              Events this week
+              Engineering Courses
             </Button>
             <Button
               mode="outlined"
-              onPress={() => setMessage("How do I submit a complaint?")}
+              onPress={() => handleSuggestionPress("How can I contact the admissions office?")}
               style={styles.suggestionButton}
             >
-              Submit a complaint
+              Contact Admissions
+            </Button>
+            <Button
+              mode="outlined"
+              onPress={() => handleSuggestionPress("What events are happening this week?")}
+              style={styles.suggestionButton}
+            >
+              Upcoming Events
             </Button>
           </ScrollView>
         </Card.Content>
@@ -233,6 +262,7 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 16,
     color: '#333',
+    lineHeight: 22,
   },
   userMessageText: {
     color: '#fff',
@@ -271,10 +301,12 @@ const styles = StyleSheet.create({
   helpTitle: {
     fontSize: 16,
     marginBottom: 8,
+    color: '#003366',
   },
   suggestionButton: {
     marginRight: 8,
     marginBottom: 8,
+    borderColor: '#003366',
   },
 });
 

@@ -61,30 +61,42 @@ const RegisterScreen = ({ navigation }) => {
     return Object.keys(newErrors).length === 0;
   };
   
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (validateForm()) {
-      // Prepare registration data based on role
-      const userData = {
-        name,
-        email,
-        password,
-        role,
-        ...(role === 'student' 
-          ? { studentId, major, year } 
-          : { department, position, employeeId })
-      };
-      
-      // In a real app, this would dispatch the register action
-      // dispatch(register(userData));
-      
-      // For demo purposes, show success message
-      setSnackbarMessage('Account created successfully!');
-      setSnackbarVisible(true);
-      
-      // Navigate to login after a short delay
-      setTimeout(() => {
-        navigation.navigate('Login');
-      }, 1500);
+      try {
+        // Prepare registration data based on role
+        const userData = {
+          name,
+          email,
+          password,
+          role,
+          ...(role === 'student' 
+            ? { studentId, major, year } 
+            : { department, position, employeeId })
+        };
+        
+        // Dispatch the register action
+        const result = await dispatch(register(userData));
+        
+        if (register.fulfilled.match(result)) {
+          // Registration successful
+          setSnackbarMessage('Account created successfully! You are now logged in.');
+          setSnackbarVisible(true);
+          
+          // Navigate to main app after a short delay
+          setTimeout(() => {
+            // The user should now be authenticated and the app will navigate automatically
+            // based on the authentication state in your navigation logic
+          }, 1500);
+        } else {
+          // Registration failed - error is handled by Redux and will show in the error state
+          console.error('Registration failed:', result.payload);
+        }
+      } catch (error) {
+        console.error('Registration error:', error);
+        setSnackbarMessage('Registration failed. Please try again.');
+        setSnackbarVisible(true);
+      }
     }
   };
   

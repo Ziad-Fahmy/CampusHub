@@ -2,22 +2,27 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useSelector } from 'react-redux';
 
 import Dashboard from '../screens/Dashboard';
 import FacilitiesList from '../screens/booking/FacilitiesList';
 import FacilityDetails from '../screens/booking/FacilityDetails';
 import FacilityBookingForm from '../screens/booking/FacilityBookingForm';
+import FacilityBookingManagement from '../screens/booking/FacilityBookingManagement';
 
 import ClassroomMap from '../screens/classrooms/ClassroomMap';
 import EventsList from '../screens/events/EventsList';
 import EventDetails from '../screens/events/EventDetails';
 import AddEventScreen from '../screens/events/AddEventScreen';
 import EventRegistrationScreen from '../screens/events/EventRegistrationScreen';
+import EventRegistrationManagement from '../screens/events/EventRegistrationManagement';
 
 import RestaurantsList from '../screens/food/RestaurantsList';
 import RestaurantDetails from '../screens/food/RestaurantDetails';
+import MenuManagement from '../screens/food/MenuManagement';
 
 import NewComplaint from '../screens/complaints/NewComplaint';
+import ComplaintHistoryScreen from '../screens/complaints/ComplaintHistoryScreen';
 import ChatInterface from '../screens/chatbot/ChatInterface';
 
 import ProfileScreen from '../screens/profile/ProfileScreen';
@@ -40,31 +45,67 @@ const ProfileStackNavigator = () => (
 );
 
 // Facilities stack including Details and Booking
-const FacilitiesStackNavigator = () => (
-  <FacilitiesStack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#003366' }, headerTintColor: '#fff' }}>
-    <FacilitiesStack.Screen name="FacilitiesList" component={FacilitiesList} options={{ headerShown: false }} />
-    <FacilitiesStack.Screen name="FacilityDetails" component={FacilityDetails} options={{ title: 'Facility Details' }} />
-    <FacilitiesStack.Screen name="FacilityBookingForm" component={FacilityBookingForm} options={{ title: 'Book Facility' }} />
-  </FacilitiesStack.Navigator>
-);
+const FacilitiesStackNavigator = () => {
+  const { user } = useSelector((state) => state.auth);
+  const isAdmin = user?.role === 'admin';
+
+  return (
+    <FacilitiesStack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#003366' }, headerTintColor: '#fff' }}>
+      <FacilitiesStack.Screen name="FacilitiesList" component={FacilitiesList} options={{ headerShown: false }} />
+      <FacilitiesStack.Screen name="FacilityDetails" component={FacilityDetails} options={{ title: 'Facility Details' }} />
+      <FacilitiesStack.Screen name="FacilityBookingForm" component={FacilityBookingForm} options={{ title: 'Book Facility' }} />
+      {isAdmin && (
+        <FacilitiesStack.Screen 
+          name="FacilityBookingManagement" 
+          component={FacilityBookingManagement} 
+          options={{ title: 'Booking Management' }} 
+        />
+      )}
+    </FacilitiesStack.Navigator>
+  );
+};
 
 // Events stack
-const EventsStackNavigator = () => (
-  <EventsStack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#003366' }, headerTintColor: '#fff' }}>
-    <EventsStack.Screen name="EventsList" component={EventsList} options={{ headerShown: false }} />
-    <EventsStack.Screen name="EventDetails" component={EventDetails} options={{ title: 'Event Details' }} />
-    <EventsStack.Screen name="AddEvent" component={AddEventScreen} options={{ title: 'Add New Event' }} />
-    <EventsStack.Screen name="EventRegistration" component={EventRegistrationScreen} options={{ title: 'Event Registration' }} />
-  </EventsStack.Navigator>
-);
+const EventsStackNavigator = () => {
+  const { user } = useSelector((state) => state.auth);
+  const isAdmin = user?.role === 'admin';
+
+  return (
+    <EventsStack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#003366' }, headerTintColor: '#fff' }}>
+      <EventsStack.Screen name="EventsList" component={EventsList} options={{ headerShown: false }} />
+      <EventsStack.Screen name="EventDetails" component={EventDetails} options={{ title: 'Event Details' }} />
+      <EventsStack.Screen name="AddEvent" component={AddEventScreen} options={{ title: 'Add New Event' }} />
+      <EventsStack.Screen name="EventRegistration" component={EventRegistrationScreen} options={{ title: 'Event Registration' }} />
+      {isAdmin && (
+        <EventsStack.Screen 
+          name="EventRegistrationManagement" 
+          component={EventRegistrationManagement} 
+          options={{ title: 'Registration Management' }} 
+        />
+      )}
+    </EventsStack.Navigator>
+  );
+};
 
 // Food stack
-const FoodStackNavigator = () => (
-  <FoodStack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#003366' }, headerTintColor: '#fff' }}>
-    <FoodStack.Screen name="RestaurantsList" component={RestaurantsList} options={{ headerShown: false }} />
-    <FoodStack.Screen name="RestaurantDetails" component={RestaurantDetails} options={{ title: 'Restaurant Details' }} />
-  </FoodStack.Navigator>
-);
+const FoodStackNavigator = () => {
+  const { user } = useSelector((state) => state.auth);
+  const isAdmin = user?.role === 'admin';
+
+  return (
+    <FoodStack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#003366' }, headerTintColor: '#fff' }}>
+      <FoodStack.Screen name="RestaurantsList" component={RestaurantsList} options={{ headerShown: false }} />
+      <FoodStack.Screen name="RestaurantDetails" component={RestaurantDetails} options={{ title: 'Restaurant Details' }} />
+      {isAdmin && (
+        <FoodStack.Screen 
+          name="MenuManagement" 
+          component={MenuManagement} 
+          options={{ title: 'Menu Management' }} 
+        />
+      )}
+    </FoodStack.Navigator>
+  );
+};
 
 const TabNavigator = () => (
   <Tab.Navigator screenOptions={{ tabBarActiveTintColor: '#003366', tabBarInactiveTintColor: '#888' }}>
@@ -122,6 +163,15 @@ const TabNavigator = () => (
       options={{
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons name="message-alert" color={color} size={size} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="ComplaintHistory"
+      component={ComplaintHistoryScreen}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name="history" color={color} size={size} />
         ),
       }}
     />

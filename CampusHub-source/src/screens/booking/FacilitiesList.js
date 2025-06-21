@@ -2,9 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, TouchableOpacity, Image, Text, StyleSheet, ScrollView } from 'react-native';
 import { Card, Title, Paragraph, Button, ActivityIndicator } from 'react-native-paper';
+import { useSelector } from 'react-redux';
 import apiClient from '../../api/apiClient';
 
 const FacilityList = ({ navigation }) => {
+  const { user } = useSelector((state) => state.auth);
+  const isAdmin = user?.role === 'admin';
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -91,6 +94,19 @@ const FacilityList = ({ navigation }) => {
           contentContainerStyle={styles.listContainer}
         />
       )}
+
+      {isAdmin && (
+        <View style={styles.adminButtonContainer}>
+          <Button
+            mode="contained"
+            onPress={() => navigation.navigate('FacilityBookingManagement')}
+            style={styles.manageBookingsButton}
+            icon="calendar-check"
+          >
+            Manage Bookings
+          </Button>
+        </View>
+      )}
     </View>
   );
 };
@@ -135,6 +151,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  adminButtonContainer: {
+    padding: 16,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  manageBookingsButton: {
+    backgroundColor: '#4CAF50',
   },
 });
 

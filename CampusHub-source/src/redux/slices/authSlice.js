@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as authApi from '../../api/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Add checkAuthStatus action
 export const checkAuthStatus = createAsyncThunk(
@@ -9,6 +10,9 @@ export const checkAuthStatus = createAsyncThunk(
       const authData = await authApi.checkAuthStatus();
       return authData;
     } catch (error) {
+      // If checkAuthStatus fails, ensure AsyncStorage is cleared
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('user');
       return rejectWithValue(error);
     }
   }
@@ -55,7 +59,7 @@ const authSlice = createSlice({
   initialState: {
     user: null,
     token: null,
-    isAuthenticated: false, // Changed from true to false
+    isAuthenticated: false,
     loading: false,
     error: null,
   },
@@ -109,6 +113,9 @@ const authSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.msg || 'Login failed';
+        state.user = null; // Ensure user is null on failed login
+        state.token = null; // Ensure token is null on failed login
+        state.isAuthenticated = false; // Ensure not authenticated on failed login
       })
       
       // Register
@@ -125,6 +132,9 @@ const authSlice = createSlice({
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.msg || 'Registration failed';
+        state.user = null; // Ensure user is null on failed registration
+        state.token = null; // Ensure token is null on failed registration
+        state.isAuthenticated = false; // Ensure not authenticated on failed registration
       })
       
       // Logout

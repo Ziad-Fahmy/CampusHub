@@ -104,9 +104,9 @@ const LoginScreen = ({ navigation }) => {
               Create Account
             </Button>
             
-            {error && (
+            {error && error.msg && (
               <HelperText type="error" style={styles.errorText}>
-                {error}
+                {error.msg}
               </HelperText>
             )}
           </View>

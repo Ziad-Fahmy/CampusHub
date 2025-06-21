@@ -4,6 +4,7 @@ import { TextInput, Button, Text, HelperText, Card, Title } from 'react-native-p
 import { useSelector, useDispatch } from 'react-redux';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { addComplaint } from '../../redux/slices/complaintSlice';
 
 const ComplaintSchema = Yup.object().shape({
   title: Yup.string()
@@ -30,7 +31,8 @@ const NewComplaint = ({ navigation }) => {
       setLoading(true);
       
       // In a real app, this would dispatch an action to submit to the API
-      console.log('Submitting complaint:', values);
+      console.log("Submitting complaint:", values);
+      dispatch(addComplaint({ ...values, id: Date.now() })); // Dispatch the addComplaint action
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));

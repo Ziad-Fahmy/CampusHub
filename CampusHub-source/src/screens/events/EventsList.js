@@ -26,7 +26,7 @@ const EventsList = ({ navigation }) => {
       title: 'Cultural Festival',
       description: 'Celebrate diversity with performances, food, and activities from cultures around the world.',
       location: 'Student Center, Outdoor Plaza',
-      startDate: new Date('2025-06-10T12:00:00'),
+      startDate: new Date('2025-06-10T12:00:00' ),
       endDate: new Date('2025-06-10T20:00:00'),
       category: 'cultural',
       organizer: 'International Student Association',
@@ -49,14 +49,14 @@ const EventsList = ({ navigation }) => {
       title: 'Career Fair',
       description: 'Meet representatives from top companies and explore internship and job opportunities.',
       location: 'Business Building, Conference Hall',
-      startDate: new Date('2025-06-05T10:00:00'),
+      startDate: new Date('2025-06-05T10:00:00' ),
       endDate: new Date('2025-06-05T15:00:00'),
       category: 'academic',
       organizer: 'Career Services',
       registrationRequired: true,
       registrationLink: 'https://university.edu/events/career-fair'
     }
-  ]);
+  ] );
   
   const [loading, setLoading] = React.useState(false);
   const [filter, setFilter] = React.useState('all');
@@ -101,7 +101,7 @@ const EventsList = ({ navigation }) => {
             title: 'Cultural Festival',
             description: 'Celebrate diversity with performances, food, and activities from cultures around the world.',
             location: 'Student Center, Outdoor Plaza',
-            startDate: new Date('2025-06-10T12:00:00'),
+            startDate: new Date('2025-06-10T12:00:00' ),
             endDate: new Date('2025-06-10T20:00:00'),
             category: 'cultural',
             organizer: 'International Student Association',
@@ -124,14 +124,14 @@ const EventsList = ({ navigation }) => {
             title: 'Career Fair',
             description: 'Meet representatives from top companies and explore internship and job opportunities.',
             location: 'Business Building, Conference Hall',
-            startDate: new Date('2025-06-05T10:00:00'),
+            startDate: new Date('2025-06-05T10:00:00' ),
             endDate: new Date('2025-06-05T15:00:00'),
             category: 'academic',
             organizer: 'Career Services',
             registrationRequired: true,
             registrationLink: 'https://university.edu/events/career-fair'
           }
-        ]);
+        ] );
       } else {
         setEvents(events.filter(event => event.category === category));
       }
@@ -243,14 +243,24 @@ const EventsList = ({ navigation }) => {
         />
       )}
       {isAdmin && (
-        <Button
-          mode="contained"
-          onPress={() => navigation.navigate('AddEvent')}
-          style={styles.addEventButton}
-          icon="plus"
-        >
-          Add New Event
-        </Button>
+        <View style={styles.adminButtonsContainer}>
+          <Button
+            mode="contained"
+            onPress={() => navigation.navigate('AddEvent')}
+            style={[styles.adminButton, styles.addEventButton]}
+            icon="plus"
+          >
+            Add New Event
+          </Button>
+          <Button
+            mode="contained"
+            onPress={() => navigation.navigate('EventRegistrationManagement')}
+            style={[styles.adminButton, styles.manageRegistrationsButton]}
+            icon="account-multiple-check"
+          >
+            Manage Registrations
+          </Button>
+        </View>
       )}
     </View>
   );
@@ -328,12 +338,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  addEventButton: {
+  adminButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     margin: 16,
+    gap: 10,
+  },
+  adminButton: {
+    flex: 1,
+  },
+  addEventButton: {
     backgroundColor: '#003366',
+  },
+  manageRegistrationsButton: {
+    backgroundColor: '#4CAF50',
   },
 });
 
 export default EventsList;
-
-

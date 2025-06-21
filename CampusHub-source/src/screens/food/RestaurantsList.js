@@ -4,6 +4,8 @@ import { Card, Title, Paragraph, Button, Text, ActivityIndicator, Avatar } from 
 import { useSelector, useDispatch } from 'react-redux';
 
 const RestaurantsList = ({ navigation }) => {
+  const { user } = useSelector((state) => state.auth);
+  const isAdmin = user?.role === 'admin';
   // In a real app, this would fetch from the API
   const [restaurants, setRestaurants] = React.useState([
     {
@@ -231,6 +233,19 @@ const RestaurantsList = ({ navigation }) => {
           contentContainerStyle={styles.listContainer}
         />
       )}
+
+      {isAdmin && (
+        <View style={styles.adminButtonContainer}>
+          <Button
+            mode="contained"
+            onPress={() => navigation.navigate('MenuManagement')}
+            style={styles.manageMenuButton}
+            icon="food"
+          >
+            Manage Menus
+          </Button>
+        </View>
+      )}
     </View>
   );
 };
@@ -319,6 +334,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  adminButtonContainer: {
+    padding: 16,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  manageMenuButton: {
+    backgroundColor: '#FF9800',
   },
 });
 
